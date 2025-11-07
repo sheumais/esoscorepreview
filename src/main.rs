@@ -101,7 +101,8 @@ fn calculate_time(time: u32) -> String {
 
 #[derive(Properties, PartialEq)]
 pub struct TrialSelectorProps {
-    pub on_change: Callback<(Trial, u8, u32)>,
+    pub on_change: Callback<(Trial, u8, u32, bool)>,
+    pub u: bool,
 }
 
 #[function_component(TrialSelector)]
@@ -127,7 +128,7 @@ pub fn trial_selector(props: &TrialSelectorProps) -> Html {
                 vitality.set(vit);
                 let time = trial.get_score_factor();
                 total_millis.set(time as u32);
-                on_change.emit((trial, vit, time as u32));
+                on_change.emit((trial, vit, time as u32, false));
             }
         })
     };
@@ -142,7 +143,7 @@ pub fn trial_selector(props: &TrialSelectorProps) -> Html {
             if let Some(input) = e.target_dyn_into::<web_sys::HtmlInputElement>() {
                 let v = input.value().parse::<u8>().unwrap_or(0);
                 vitality.set(v);
-                on_change.emit((trials[*selected_trial].clone(), v, *total_millis));
+                on_change.emit((trials[*selected_trial].clone(), v, *total_millis, false));
             }
         })
     };
@@ -192,7 +193,7 @@ pub fn trial_selector(props: &TrialSelectorProps) -> Html {
 
                     let total = total_sec * 1000 + frac_millis;
                     total_millis.set(total);
-                    on_change.emit((trials[*selected_trial].clone(), *vitality, total));
+                    on_change.emit((trials[*selected_trial].clone(), *vitality, total, false));
                 }
             }
         })
@@ -217,13 +218,16 @@ pub fn trial_selector(props: &TrialSelectorProps) -> Html {
                     let trial = trials[*selected_trial].clone();
                     let new_time = trial.calculate_time_from_score(final_score, *vitality);
                     total_millis.set(new_time);
-                    on_change.emit((trial, *vitality, new_time));
+                    on_change.emit((trial, *vitality, new_time, false));
+                } else if val == "isolemnlyswearimnotfakingmyclears" {
+                    let trial = trials[*selected_trial].clone();
+                    on_change.emit((trial, *vitality, *total_millis, true));
                 }
             }
         })
     };
 
-    let render_and_download = {
+    let r_and_d = {
         let canvas_ref = canvas_ref.clone();
         let total_millis = total_millis.clone();
         let vitality = vitality.clone();
@@ -441,13 +445,15 @@ pub fn trial_selector(props: &TrialSelectorProps) -> Html {
 
             <canvas ref={canvas_ref} style="display:none;" />
 
-            <Icon
-                class={icon_style().clone()}
-                width={"2em"}
-                height={"2em"}
-                icon_id={IconId::LucideDownload}
-                onclick={render_and_download}
-            />
+            if props.u {
+                <Icon
+                    class={icon_style().clone()}
+                    width={"2em"}
+                    height={"2em"}
+                    icon_id={IconId::LucideDownload}
+                    onclick={r_and_d}
+                />
+            }
         </div>
     }
 }
@@ -458,22 +464,25 @@ fn app() -> Html {
     let trial_state = use_state(|| trials[0].clone());
     let vitality_state = use_state(|| 24u8);
     let time_state = use_state(|| 900_000u32);
+    let du = use_state(|| false);
 
     let on_trial_change = {
         let trial_state = trial_state.clone();
         let vitality_state = vitality_state.clone();
         let time_state = time_state.clone();
-        Callback::from(move |(trial, vitality, time): (Trial, u8, u32)| {
+        let dul = du.clone();
+        Callback::from(move |(trial, vitality, time, unlocked): (Trial, u8, u32, bool)| {
             trial_state.set(trial);
             vitality_state.set(vitality);
             time_state.set(time);
+            if unlocked == true {dul.set(true)}
         })
     };
 
     html! {
         <div class={container()}>
             <div class={css!("display: flex; gap: 40px; align-items: flex-start; flex-direction: column;")}>
-                <TrialSelector on_change={on_trial_change.clone()} />
+                <TrialSelector on_change={on_trial_change.clone()} u={*du} />
                 <ScoreView trial={(*trial_state).clone()} vitality={vitality_state.min(trial_state.get_maximum_vitality())} time={*time_state} />
             </div>
             <div style="position: fixed; bottom: 1em; right: 1em; display: flex; gap: 1em;">
