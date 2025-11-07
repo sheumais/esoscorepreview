@@ -280,9 +280,9 @@ pub fn trial_selector(props: &TrialSelectorProps) -> Html {
                 ctx.set_fill_style_str("#c5c29e");
                 let total_width: f64 = icon_width + text_extracts.iter().map(|text| ctx.measure_text(&text).unwrap().width()).sum::<f64>();
 
-                let canvas_width = title_width.max(total_width + 81.0) + 10.0;
+                let canvas_width = title_width.max(total_width + 91.0) + 100.0;
                 canvas.set_width(canvas_width as u32);
-                let mut x_pos = (canvas_width - total_width - 80.0) / 2.0;
+                let mut x_pos = (canvas_width - total_width - 91.0) / 2.0;
 
                 ctx.set_font("bold 40px Univers");
                 ctx.set_text_align("center");
