@@ -1,0 +1,13 @@
+[package]
+name = "eso_score_preview"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+regex = "1.11.1"
+web-sys = {version = "0.3.77", features = ["CanvasRenderingContext2d", "HtmlCanvasElement", "HtmlImageElement", "HtmlSelectElement", "HtmlAnchorElement", "Element", "HtmlElement", "TextMetrics"] }
+yew = {version = "0.21.0", features = ["csr"] }
+stylist = {version = "0.13", features = ["yew_integration"]}
+wasm-bindgen = "0.2.100"
+js-sys = "0.3.77"
+yew_icons = {version = "0.8", features = ["BootstrapDiscord", "BootstrapGithub", "LucideDownload"]}
