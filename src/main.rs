@@ -23,7 +23,7 @@ pub fn score_view(props: &ScoreProps) -> Html {
     let time = props.time;
 
     html! {
-        <div class={css!("background: repeating-conic-gradient(#5d5d5d 0 25%, #8e8e8e 0 50%) 50% / 20px 20px; padding: 20px;")}>
+        <div class={css!("padding: 20px;")}>
             <div class={title_style().clone()}>
                 { format!("COMPLETED: {}", trial.get_name()) }
             </div>
